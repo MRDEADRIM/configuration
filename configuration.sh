@@ -1,7 +1,7 @@
 #!/bin/sh
 
 date_time () {
-    date +"%y-%b-%d %H:%M %T %p"
+    date +"%y-%b-%d %H:%M %p"
 }
 
 battery_percentage () {
@@ -9,10 +9,19 @@ battery_percentage () {
 }
 
 menu () {
-    while true; do
-        xsetroot -name "$(date_time) $(battery_percentage)"
-        sleep 1
-    done
+	while true; do
+		current_battery=$(battery_percentage)
+		if [ "$current_battery" -lt 5 ]; then
+			shutdown now
+		elif [ "$current_battery" -lt 10 ]; then
+			xsetroot -name "Critical Status"
+		elif [ "$current_battery" -lt 30 ]; then
+			xsetroot -name "Low Power"
+		else
+			xsetroot -name "$(date_time) $current_battery%"
+		fi
+		sleep $((60 - $(date +%S) % 60))
+	done
 }
 
 menu
